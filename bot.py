@@ -20,6 +20,9 @@ load_dotenv()
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 RECIPIENT_CHAT_ID = os.getenv("RECIPIENT_CHAT_ID")
+WEBHOOK_URL = os.getenv("WEBHOOK_URL")
+RENDER_EXTERNAL_HOSTNAME = os.getenv("RENDER_EXTERNAL_HOSTNAME")
+PORT = int(os.getenv("PORT", "8000"))
 RECIPIENT_FILE = "recipient_chat_id.txt"
 
 QUESTIONS = [
@@ -210,6 +213,18 @@ def main() -> None:
     application.add_handler(CommandHandler("id", show_id))
     application.add_handler(CommandHandler("admin", set_admin))
     application.add_handler(CommandHandler("help", help_command))
+
+    if WEBHOOK_URL or RENDER_EXTERNAL_HOSTNAME:
+        webhook_base_url = WEBHOOK_URL or f"https://{RENDER_EXTERNAL_HOSTNAME}"
+        webhook_path = f"telegram/{BOT_TOKEN}"
+        application.run_webhook(
+            listen="0.0.0.0",
+            port=PORT,
+            url_path=webhook_path,
+            webhook_url=f"{webhook_base_url.rstrip('/')}/{webhook_path}",
+            allowed_updates=Update.ALL_TYPES,
+        )
+        return
 
     application.run_polling(allowed_updates=Update.ALL_TYPES)
 
