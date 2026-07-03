@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import os
 from datetime import datetime
@@ -196,6 +197,11 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
 def main() -> None:
     if not BOT_TOKEN:
         raise RuntimeError("BOT_TOKEN is not set. Copy .env.example to .env and fill it in.")
+
+    try:
+        asyncio.get_event_loop()
+    except RuntimeError:
+        asyncio.set_event_loop(asyncio.new_event_loop())
 
     application = Application.builder().token(BOT_TOKEN).build()
 
